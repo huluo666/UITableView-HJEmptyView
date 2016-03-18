@@ -66,7 +66,7 @@
         [weakSelf MJBeginRefreshing];
     };
     
-    self.tableView.nxEV_emptyView=self.emptyView;
+    self.tableView.HJ_emptyView=self.emptyView;
 }
 
 
@@ -182,7 +182,7 @@
 	if(_customButton == nil) {
         _customButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _customButton.frame=CGRectMake(0, 0,120, 45);
-        _customButton.backgroundColor=[UIColor redColor];
+        _customButton.backgroundColor=[UIColor lightGrayColor];
         _customButton.layer.cornerRadius=3;
         [_customButton setTitle:@"点击加载" forState:UIControlStateNormal];
 	}

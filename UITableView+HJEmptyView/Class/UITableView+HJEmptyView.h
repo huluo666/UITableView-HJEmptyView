@@ -10,6 +10,6 @@
 
 @interface UITableView (HJEmptyView)
 
-@property (nonatomic, strong) UIView *nxEV_emptyView;
+@property (nonatomic, strong) UIView *HJ_emptyView;
 
 @end

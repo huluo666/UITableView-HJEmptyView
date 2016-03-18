@@ -9,9 +9,16 @@
 #import "UITableView+HJEmptyView.h"
 #import <objc/runtime.h>
 
-static const NSString *NXEmptyViewAssociatedKey = @"NXEmptyViewAssociatedKey";
+static const NSString *HJEmptyViewKey = @"HJEmptyViewAssociatedKey";
 
-void nxEV_swizzle(Class c, SEL orig, SEL new)
+/**
+ *  Method swizzle
+ *
+ *  @param c    Class
+ *  @param orig system @selector
+ *  @param new  new    @selector
+ */
+void HJ_swizzle(Class c, SEL orig, SEL new)
 {
     Method origMethod = class_getInstanceMethod(c, orig);
     Method newMethod = class_getInstanceMethod(c, new);
@@ -23,18 +30,21 @@ void nxEV_swizzle(Class c, SEL orig, SEL new)
 
 
 @implementation UITableView (HJEmptyView)
-#pragma mark Entry
 
-+ (void)load;
-{
-    Class c = [UITableView class];
-    nxEV_swizzle(c, @selector(reloadData), @selector(nxEV_reloadData));
-    nxEV_swizzle(c, @selector(layoutSubviews), @selector(nxEV_layoutSubviews));
++ (void)load{
+    // Method switching should be guaranteed and will only be executed once in the program.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class c = [UITableView class];
+        HJ_swizzle(c, @selector(reloadData), @selector(HJ_reloadData));
+        HJ_swizzle(c, @selector(layoutSubviews), @selector(HJ_layoutSubviews));
+    });
 }
 
-#pragma mark Properties
 
-- (BOOL)nxEV_hasRowsToDisplay;
+
+#pragma mark Properties
+- (BOOL)HJ_hasRowsToDisplay;
 {
     NSUInteger numberOfRows = 0;
     for (NSInteger sectionIndex = 0; sectionIndex < self.numberOfSections; sectionIndex++) {
@@ -44,27 +54,11 @@ void nxEV_swizzle(Class c, SEL orig, SEL new)
 }
 
 
-@dynamic nxEV_emptyView;
-- (UIView *)nxEV_emptyView;
+
+#pragma mark-- Updating EmptyView
+- (void)HJ_updateEmptyView;
 {
-    return objc_getAssociatedObject(self, &NXEmptyViewAssociatedKey);
-}
-
-- (void)setNxEV_emptyView:(UIView *)value;
-{
-    if (self.nxEV_emptyView.superview) {
-        [self.nxEV_emptyView removeFromSuperview];
-    }
-    objc_setAssociatedObject(self, &NXEmptyViewAssociatedKey, value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    [self nxEV_updateEmptyView];
-}
-
-
-
-#pragma mark Updating
-- (void)nxEV_updateEmptyView;
-{
-    UIView *emptyView = self.nxEV_emptyView;
+    UIView *emptyView = self.HJ_emptyView;
     if (!emptyView) return;
     
     if (emptyView.superview != self) {
@@ -79,29 +73,43 @@ void nxEV_swizzle(Class c, SEL orig, SEL new)
     emptyView.frame = frame;
     emptyView.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     
-    // check available data
-    BOOL emptyViewShouldBeShown = (self.nxEV_hasRowsToDisplay == NO);
+    // need to show ?
+    BOOL emptyViewShouldBeShown = (self.HJ_hasRowsToDisplay == NO);
     
     // show / hide empty view
     emptyView.hidden = !emptyViewShouldBeShown;
 }
 
 
-#pragma mark Swizzle methods
-- (void)nxEV_reloadData;
+#pragma mark-- Swizzle methods
+- (void)HJ_reloadData;
 {
-    // this calls the original reloadData implementation
-    [self nxEV_reloadData];
-    
-    [self nxEV_updateEmptyView];
+    //Call system reloadData
+    [self HJ_reloadData];
+    [self HJ_updateEmptyView];
 }
 
-- (void)nxEV_layoutSubviews;
+- (void)HJ_layoutSubviews;
 {
-    // this calls the original layoutSubviews implementation
-    [self nxEV_layoutSubviews];
-    
-    [self nxEV_updateEmptyView];
+    [self HJ_layoutSubviews];
+    [self HJ_updateEmptyView];
+}
+
+
+#pragma mark--- AssociatedObject
+@dynamic HJ_emptyView;
+- (UIView *)HJ_emptyView;
+{
+    return objc_getAssociatedObject(self, &HJEmptyViewKey);
+}
+
+- (void)setHJ_emptyView:(UIView *)value;
+{
+    if (self.HJ_emptyView.superview) {
+        [self.HJ_emptyView removeFromSuperview];
+    }
+    objc_setAssociatedObject(self, &HJEmptyViewKey, value, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self HJ_updateEmptyView];
 }
 
 @end
