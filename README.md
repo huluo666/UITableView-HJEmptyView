@@ -7,6 +7,7 @@
 ![演示图](https://github.com/huluo666/UITableView-HJEmptyView/blob/master/2016_03_18_120853.gif)
 
 
+### 使用
 ```objc
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -28,7 +29,7 @@
 ```
 
 
-### NO.2 使用自定义空视图
+### 或  NO.2 使用自定义空视图
 ```objc
 -(void)setUpEmptyView
 {
