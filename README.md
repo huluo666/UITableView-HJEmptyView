@@ -1,5 +1,9 @@
 # UITableView-HJEmptyView
-### 利用Runtime一行代码实现UITableView的空视图EmptyView显示,省去没必要的判断和几行代码即可快速自定义精美的空视图显示。
+pod 'UITableView+HJEmptyView', '~> 1.0.0'
+   - Homepage: https://github.com/huluo666/UITableView-HJEmptyView
+   - Source:   https://github.com/huluo666/UITableView-HJEmptyView.git
+   
+### 利用Runtime一行代码实现UITableView的空视图EmptyView显示,省去没必要的判断和几行代码即可快速自定义精致简洁的空视图显示。大大的减少了viewContoller中的代码量。可重用，整个项目在需要显示空视图控制器，加上一行代码即可。
 
 #### 只需一行代码
 `self.tableView.HJ_emptyView=self.emptyView;//emptyView需要显示的空视图`
